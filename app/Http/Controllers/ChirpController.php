@@ -13,9 +13,18 @@ class ChirpController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
+        $user = $request->user();
         return view('chirps.index', [
+            'chirps' => Chirp::followUserChirps($user['id'])
+        ]);
+    }
+
+
+    public function search(): View
+    {
+        return view('chirps.search', [
             'chirps' => Chirp::with('user')->latest()->get(),
         ]);
     }
@@ -33,11 +42,9 @@ class ChirpController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $data = $request->validate(
-            [
+        $data = $request->validate([
                 'message' => 'required|string|max:255',
-            ]
-        );
+            ]);
 
         $request->user()->chirps()->create($data);
 
